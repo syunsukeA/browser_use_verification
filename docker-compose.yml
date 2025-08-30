@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  internship-scraper:
+    build: .
+    container_name: internship-scraper
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      # 設定ファイルをマウント（設定変更時にコンテナ再起動不要）
+      - ./config:/app/config
+      # 結果データをホストに保存
+      - ./data:/app/data
+    # ヘッドレスモードで実行（GUI不要）
+    command: ["python", "main.py"]
+    # コンテナ終了時に自動削除
+    restart: "no"
+    # リソース制限
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # 開発用サービス（ヘッドレスモード無効）
+  internship-scraper-dev:
+    build: .
+    container_name: internship-scraper-dev
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./src:/app/src
+    # 開発用コマンド（特定企業のみ処理）
+    command: ["python", "main.py", "--company", "リクルート"]
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
