@@ -93,14 +93,17 @@ class InternshipScraper:
         # 出力ディレクトリ作成
         os.makedirs(output_dir, exist_ok=True)
         
+        # タイムスタンプを生成（全ファイルで共通）
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
         for i, company in enumerate(companies, 1):
             print(f"\n[{i}/{len(companies)}] {company.name} を処理中...")
             
             result = await self.scrape_company(company)
             results.append(result)
             
-            # 個別ファイルに保存
-            company_filename = f"{company.name.replace(' ', '_')}_internships.json"
+            # タイムスタンプ付きファイル名で保存
+            company_filename = f"{company.name.replace(' ', '_')}_{timestamp}.json"
             company_filepath = os.path.join(output_dir, company_filename)
             
             with open(company_filepath, "w", encoding="utf-8") as f:
@@ -108,8 +111,9 @@ class InternshipScraper:
             
             print(f"結果を保存しました: {company_filepath}")
         
-        # 全結果をまとめて保存
-        summary_filepath = os.path.join(output_dir, "all_internships.json")
+        # 全結果をまとめて保存（タイムスタンプ付き）
+        summary_filename = f"all_internships_{timestamp}.json"
+        summary_filepath = os.path.join(output_dir, summary_filename)
         with open(summary_filepath, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
         
@@ -125,6 +129,9 @@ async def main():
     
     scraper = InternshipScraper(args.config)
     
+    # 出力ディレクトリ作成
+    os.makedirs(args.output, exist_ok=True)
+    
     if args.company:
         # 特定企業のみ処理
         companies = scraper.config_manager.get_companies()
@@ -136,6 +143,16 @@ async def main():
         
         if target_company:
             result = await scraper.scrape_company(target_company)
+            
+            # タイムスタンプ付きファイル名で保存
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{args.company}_{timestamp}.json"
+            filepath = os.path.join(args.output, filename)
+            
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(result, f, ensure_ascii=False, indent=2)
+            
+            print(f"結果を保存しました: {filepath}")
             print(json.dumps(result, ensure_ascii=False, indent=2))
         else:
             print(f"指定された企業 '{args.company}' が見つかりません")
