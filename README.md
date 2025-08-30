@@ -14,6 +14,50 @@
 - 最適化された検索キーワードの自動生成と活用
 - 設定ファイルベースの動作（設定ファイルが必須）
 
+## 出力例：CAの場合
+```
+{
+  "company": "サイバーエージェント",
+  "scraped_at": "2025-08-30T16:28:36.785134",
+  "status": "success",
+  "source_url": "https://www.cyberagent.co.jp/careers/students/biz/internship/",
+  "internships": [
+    {
+      "title": "事業立案 インターンシップ",
+      "period": "1期：7月11日（金）～7月13日（日）、2期：8月1日（金）～8月3日（日）",
+      "application_deadline": "1次選考締切：4月24日（木）、2期：5月15日（木）",
+      "target": "Students interested in business planning",
+      "description": "活躍社員が最前線で戦っている「事業立案」のお題に取り組む、3日間のインターンシップです。壮大なビジョンを描き、最先端技術を駆使しながら事業を創っていく体験をしていただきます。",
+      "url": "https://www.cyberagent.co.jp/careers/students/event/detail/id=31522"
+    },
+    {
+      "title": "経営戦略 インターンシップ",
+      "period": "9月12日（金）～9月14日（日）",
+      "application_deadline": "1次選考締切：6月20日（金）",
+      "target": "Students interested in management strategy",
+      "description": "21世紀を代表する会社を目指し、増収増員を継続してきた弊社のこれまでを追体験し、これからを想像する「経営戦略」のお題に取り組む3日間のインターンシップです。第二創業期の経営戦略を像していく体験をしていただきます。",
+      "url": "https://www.cyberagent.co.jp/careers/students/event/detail/id=31530"
+    },
+    {
+      "title": "マーケティング戦略 インターンシップ",
+      "period": "1期：10月10日（金）～10月12日（日）、2期：12月5日（金）～12月7日（日）",
+      "application_deadline": "1期：7月11日（金）、2期：8月29日（金）",
+      "target": "Students interested in marketing strategy",
+      "description": "産業に革命を起こすテックカンパニーであること、クリエイティブを追求するエンターテイメント会社であること、この2つの顔を持ち合わせるサイバーエージェントだからこそ伝えられる「マーケティング」の面白さを体験していただく3日間です。",
+      "url": "https://www.cyberagent.co.jp/careers/students/event/detail/id=31531"
+    },
+    {
+      "title": "アニメ&IP インターンシップ",
+      "period": "11月28日（金）～11月30日（日）",
+      "application_deadline": "1次選考締切：8月29日（金）",
+      "target": "Students interested in anime and IP business",
+      "description": "ABEMA開局後、徐々にIP事業を拡大中のサイバーエージェント。メディアミックス戦略を中心としたアニメ&IPビジネスの展開の面白さを体感出来る3日間です。",
+      "url": "https://www.cyberagent.co.jp/careers/students/event/detail/id=31802"
+    }
+  ]
+}
+```
+
 ## セットアップ
 
 ### 方法1: ローカル環境でのセットアップ
