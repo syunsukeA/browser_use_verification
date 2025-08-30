@@ -20,35 +20,19 @@ class InternshipScraper:
     def _generate_company_prompt(self, company: CompanyConfig) -> str:
         """企業用のプロンプトを生成（base_urlとsearch_termsに応じて調整）"""
         base_prompt = self.config_manager.generate_prompt(company)
+        additional_info = self.config_manager.generate_additional_info(company)
         
-        # search_termsを文字列に変換
-        search_terms_str = ", ".join([f'"{term}"' for term in company.search_terms]) if company.search_terms else f'"{company.name} 公式サイト"'
-        
-        # base_urlがある場合は、直接アクセスするように指示を追加
-        if company.base_url:
-            enhanced_prompt = f"""
+        # プロンプトと追加情報を組み合わせ
+        enhanced_prompt = f"""
 {base_prompt}
 
-追加情報:
-- 企業の公式サイトURL: {company.base_url}
-- 推奨検索キーワード: {search_terms_str}
-- 可能であれば、上記URLから直接アクセスしてください
-- URLが利用できない場合は、検索エンジンで上記キーワードを使用して検索してください
-"""
-        else:
-            enhanced_prompt = f"""
-{base_prompt}
-
-追加情報:
-- 企業の公式サイトURLは不明です
-- 検索エンジンで以下のキーワードを使用して検索してください: {search_terms_str}
-- 公式サイトを見つけたら、採用ページにアクセスしてインターン情報を探してください
+{additional_info}
 """
         
         return enhanced_prompt
     
     async def scrape_company(self, company: CompanyConfig) -> Dict[str, Any]:
-        """単一企業のインターン情報を取得"""
+        """単一企業のインターン情報を取得（職種別情報を含む）"""
         print(f"\n=== {company.name} の情報を取得中 ===")
         
         if company.base_url:
@@ -87,6 +71,7 @@ class InternshipScraper:
                 payload["error"] = str(e)
                 payload["status"] = "error"
             
+            print(f"  取得完了: {len(payload.get('internships', []))}件のインターン情報")
             return payload
             
         except Exception as e:
@@ -97,6 +82,8 @@ class InternshipScraper:
                 "status": "error",
                 "error": str(e)
             }
+    
+
     
     async def scrape_all_companies(self, output_dir: str = "data") -> List[Dict[str, Any]]:
         """全企業のインターン情報を取得"""

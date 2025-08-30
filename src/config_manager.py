@@ -22,6 +22,7 @@ class SearchSettings:
 class DefaultConfig:
     search_terms_template: List[str]
     prompt_template: str
+    additional_info_template: str
     search_settings: SearchSettings
 
 class ConfigManager:
@@ -55,6 +56,7 @@ class ConfigManager:
         return DefaultConfig(
             search_terms_template=defaults_data.get('search_terms_template', ["{company_name} インターン"]),
             prompt_template=defaults_data.get('prompt_template', ''),
+            additional_info_template=defaults_data.get('additional_info_template', ''),
             search_settings=search_settings
         )
     
@@ -95,13 +97,39 @@ class ConfigManager:
         """企業用のプロンプトを生成（YAMLファイルの内容を参照）"""
         # カスタムプロンプトがある場合は組み合わせ、なければデフォルトテンプレートを使用
         if company.custom_prompt:
-            base_prompt = self.defaults.prompt_template.format(company_name=company.name)
+            base_prompt = self.defaults.prompt_template.format(
+                company_name=company.name
+            )
             prompt = f"{company.custom_prompt}\n\n{base_prompt}"
         else:
             # デフォルトテンプレートを使用
-            prompt = self.defaults.prompt_template.format(company_name=company.name)
+            prompt = self.defaults.prompt_template.format(
+                company_name=company.name
+            )
         
         return prompt
+    
+    def generate_additional_info(self, company: CompanyConfig) -> str:
+        """企業用の追加情報を生成"""
+        # base_urlの情報を設定
+        if company.base_url:
+            base_url_info = company.base_url
+            access_instruction = "可能であれば、上記URLから直接アクセスしてください"
+        else:
+            base_url_info = "不明"
+            access_instruction = "検索エンジンで上記キーワードを使用して検索してください"
+        
+        # search_termsの情報を設定
+        search_terms_info = ", ".join([f'"{term}"' for term in company.search_terms]) if company.search_terms else f'"{company.name} 公式サイト"'
+        
+        # 追加情報テンプレートを適用
+        additional_info = self.defaults.additional_info_template.format(
+            base_url_info=base_url_info,
+            search_terms_info=search_terms_info,
+            access_instruction=access_instruction
+        )
+        
+        return additional_info
     
     def get_defaults_info(self) -> Dict[str, Any]:
         """デフォルト設定の情報を取得（デバッグ用）"""
