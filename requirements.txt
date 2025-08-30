@@ -1,0 +1,5 @@
+browser-use==0.6.0
+playwright
+langchain-openai==0.2.0
+python-dotenv
+PyYAML
