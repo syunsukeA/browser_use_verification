@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # 本番用サービス（ヘッドレスモード）
   internship-scraper:
     build: .
     container_name: internship-scraper
@@ -12,8 +13,8 @@ services:
       - ./config:/app/config
       # 結果データをホストに保存
       - ./data:/app/data
-    # ヘッドレスモードで実行（GUI不要）
-    command: ["python", "main.py"]
+    # ヘッドレスモードで実行（コマンドライン引数で指定）
+    command: ["python", "main.py", "--headless"]
     # コンテナ終了時に自動削除
     restart: "no"
     # リソース制限
@@ -26,7 +27,26 @@ services:
           memory: 1G
           cpus: '0.5'
 
-  # 開発用サービス（ヘッドレスモード無効）
+  # 特定企業のみ処理（ヘッドレスモード）
+  internship-scraper-company:
+    build: .
+    container_name: internship-scraper-company
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    # 特定企業のみ処理（コマンドライン引数で指定）
+    command: ["python", "main.py", "--headless", "--company", "リクルート"]
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+  # 開発用サービス（GUI表示、デバッグ用）
   internship-scraper-dev:
     build: .
     container_name: internship-scraper-dev
@@ -37,8 +57,27 @@ services:
       - ./config:/app/config
       - ./data:/app/data
       - ./src:/app/src
-    # 開発用コマンド（特定企業のみ処理）
+    # 開発用コマンド（GUI表示、コマンドライン引数で指定）
     command: ["python", "main.py", "--company", "リクルート"]
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+  # カスタム実行用サービス（引数で柔軟に制御）
+  internship-scraper-custom:
+    build: .
+    container_name: internship-scraper-custom
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    # カスタムコマンド（引数で制御）
+    command: ["python", "main.py"]
     restart: "no"
     deploy:
       resources:
