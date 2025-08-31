@@ -6,12 +6,14 @@ from datetime import datetime
 from typing import List, Dict, Any
 from browser_use.llm import ChatOpenAI
 from browser_use import Agent
+from browser_use.browser.profile import BrowserProfile
 from config_manager import ConfigManager, CompanyConfig
 
 class InternshipScraper:
-    def __init__(self, config_path: str = "config/companies.yaml"):
+    def __init__(self, config_path: str = "config/companies.yaml", headless: bool = False):
         self.config_manager = ConfigManager(config_path)
         self.settings = self.config_manager.get_search_settings()
+        self.headless = headless
         
         # LLM設定
         model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
@@ -41,14 +43,16 @@ class InternshipScraper:
             print(f"  検索エンジンで公式サイトを検索します")
         
         print(f"  使用する検索キーワード: {company.search_terms}")
+        print(f"  Headlessモード: {'有効' if self.headless else '無効'}")
         
         # プロンプト生成
         prompt = self._generate_company_prompt(company)
         
-        # Agent作成
-        agent = Agent(task=prompt, llm=self.llm)
-        
         try:
+            # BrowserProfileを使用してHeadless設定を制御
+            browser_profile = BrowserProfile(headless=self.headless)
+            agent = Agent(task=prompt, llm=self.llm, browser_profile=browser_profile)
+            
             # 実行
             result = await agent.run(max_steps=self.settings.max_steps)
             
@@ -125,9 +129,10 @@ async def main():
     parser.add_argument("--config", default="config/companies.yaml", help="設定ファイルのパス")
     parser.add_argument("--output", default="data", help="出力ディレクトリ")
     parser.add_argument("--company", help="特定の企業のみ処理（企業名を指定）")
+    parser.add_argument("--headless", action="store_true", help="ブラウザをHeadlessモードで実行（デフォルト: False）")
     args = parser.parse_args()
     
-    scraper = InternshipScraper(args.config)
+    scraper = InternshipScraper(args.config, headless=args.headless)
     
     # 出力ディレクトリ作成
     os.makedirs(args.output, exist_ok=True)
